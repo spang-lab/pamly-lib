@@ -1,4 +1,6 @@
+#[cfg(feature = "openslide")]
 mod openslide;
+
 mod types;
 use pyo3::prelude::*;
 

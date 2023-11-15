@@ -12,9 +12,13 @@ crate-type = ["cdylib", "lib"]
 name = "pamly"
 path = "src/main.rs"
 
+[features]
+default = []
+openslide = ["dep:libc"]
+
 [dependencies]
 anyhow = "1.0.75"
 image = "0.24.7"
-libc = "0.2.150"
+libc = { version="0.2.150", optional = true }
 pyo3 = { version="0.19.0", features=["anyhow"] }
 sqlite = "0.32.0"
