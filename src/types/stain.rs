@@ -1,13 +1,15 @@
 use anyhow::{bail, Result};
 use pyo3::{pyclass, pymethods, PyResult};
 use std::convert::TryFrom;
-use std::fmt;
+use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter, Display, EnumString)]
 #[repr(u8)]
 #[pyclass]
+#[rustfmt::skip]
+#[strum(ascii_case_insensitive)]
 pub enum Stain {
-    UNKNOWN = 0,
+    Unknown = 0,
     HE = 1,
     CD3 = 3,
     CD20 = 20,
@@ -15,18 +17,21 @@ pub enum Stain {
     CD68 = 68,
 }
 
+impl Stain {
+    pub fn from(s: &str) -> Result<Stain> {
+        let clean = s.replace(" ", "").replace("_", "").replace("&", "");
+        match Stain::try_from(clean.as_str()) {
+            Ok(l) => Ok(l),
+            Err(e) => bail!(e.to_string()),
+        }
+    }
+}
+
 #[pymethods]
 impl Stain {
     #[staticmethod]
     pub fn list() -> Vec<Stain> {
-        vec![
-            Stain::UNKNOWN,
-            Stain::HE,
-            Stain::CD3,
-            Stain::CD20,
-            Stain::CD30,
-            Stain::CD68,
-        ]
+        Stain::iter().collect()
     }
     pub fn to_string(&self) -> String {
         let s = format!("{}", self);
@@ -34,49 +39,21 @@ impl Stain {
     }
     #[new]
     pub fn new(s: &str) -> PyResult<Stain> {
-        let diagnosis = Stain::try_from(s)?;
-        Ok(diagnosis)
-    }
-}
-impl TryFrom<&str> for Stain {
-    type Error = anyhow::Error;
-    fn try_from(s: &str) -> Result<Stain> {
-        match s {
-            "HE" => Ok(Stain::HE),
-            "CD20" => Ok(Stain::CD20),
-            "CD3" => Ok(Stain::CD3),
-            "CD68" => Ok(Stain::CD68),
-            "CD30" => Ok(Stain::CD30),
-            _ => bail!("Could not parse stain {}", s),
-        }
+        let s = Stain::from(s)?;
+        Ok(s)
     }
 }
 
 impl TryFrom<u8> for Stain {
     type Error = anyhow::Error;
-    fn try_from(v: u8) -> Result<Stain> {
-        match v {
-            0 => Ok(Stain::UNKNOWN),
-            1 => Ok(Stain::HE),
-            3 => Ok(Stain::CD3),
-            20 => Ok(Stain::CD20),
-            30 => Ok(Stain::CD30),
-            68 => Ok(Stain::CD68),
-            _ => bail!("Invalid stain number {}", v),
+    fn try_from(value: u8) -> Result<Stain> {
+        let labels = Stain::list();
+        for label in labels {
+            if label as u8 == value {
+                return Ok(label);
+            }
         }
-    }
-}
-
-impl fmt::Display for Stain {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Stain::UNKNOWN => write!(f, "UNKNOWN"),
-            Stain::HE => write!(f, "H&E"),
-            Stain::CD20 => write!(f, "CD20"),
-            Stain::CD3 => write!(f, "CD3"),
-            Stain::CD30 => write!(f, "CD30"),
-            Stain::CD68 => write!(f, "CD68"),
-        }
+        bail!("No stain for number {}", value);
     }
 }
 
@@ -90,6 +67,17 @@ mod tests {
             let stain2 = Stain::try_from(num)?;
             assert_eq!(stain, stain2);
         }
+        Ok(())
+    }
+    #[test]
+    fn he() -> Result<()> {
+        let he1 = Stain::from("HE")?;
+        let he2 = Stain::from("H&E")?;
+        let he3 = Stain::from("H_E")?;
+        let he4 = Stain::from("H_E")?;
+        assert_eq!(he1, he2);
+        assert_eq!(he2, he3);
+        assert_eq!(he3, he4);
         Ok(())
     }
 }
