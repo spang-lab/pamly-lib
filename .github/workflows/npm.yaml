@@ -16,7 +16,7 @@ jobs:
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
       - run: npm ci
-      - run: npm build -- --release
+      - run: npm run build -- --release
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
