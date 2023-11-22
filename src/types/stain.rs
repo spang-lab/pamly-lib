@@ -1,5 +1,4 @@
 use anyhow::{bail, Result};
-use neon::{context::Context, object::Object, result::JsResult, types::JsObject};
 use pyo3::{pyclass, pymethods, PyResult};
 use std::convert::TryFrom;
 use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
@@ -25,16 +24,6 @@ impl Stain {
             Ok(l) => Ok(l),
             Err(e) => bail!(e.to_string()),
         }
-    }
-    pub fn to_object<'a>(cx: &mut impl Context<'a>) -> JsResult<'a, JsObject> {
-        let obj = cx.empty_object();
-        for stain in Stain::list() {
-            let stain_string = stain.to_string();
-            let stain_str = stain_string.as_str();
-            let stain_num = cx.number(stain as u8);
-            obj.set(cx, stain_str, stain_num)?;
-        }
-        Ok(obj)
     }
 }
 
