@@ -1,6 +1,6 @@
 use anyhow::{bail, Result};
 use pyo3::{pyclass, pymethods, PyResult};
-use std::convert::TryFrom;
+use std::{collections::HashMap, convert::TryFrom};
 use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter, Display, EnumString)]
@@ -46,6 +46,13 @@ impl TileLabel {
             Err(e) => bail!(e.to_string()),
         }
     }
+    pub fn to_hash_map() -> HashMap<String, u8> {
+        let mut map = HashMap::new();
+        for label in TileLabel::list() {
+            map.insert(label.to_string(), label as u8);
+        }
+        map
+    }
 }
 
 #[pymethods]
@@ -83,10 +90,10 @@ mod tests {
     use super::{Result, TileLabel, TryFrom};
     #[test]
     fn label_consistency() -> Result<()> {
-        for stain in TileLabel::list() {
-            let num = stain as u8;
-            let stain2 = TileLabel::try_from(num)?;
-            assert_eq!(stain, stain2);
+        for label in TileLabel::list() {
+            let num = label as u8;
+            let label2 = TileLabel::try_from(num)?;
+            assert_eq!(label, label2);
         }
         Ok(())
     }

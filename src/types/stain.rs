@@ -1,6 +1,6 @@
 use anyhow::{bail, Result};
 use pyo3::{pyclass, pymethods, PyResult};
-use std::convert::TryFrom;
+use std::{collections::HashMap, convert::TryFrom};
 use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter, Display, EnumString)]
@@ -24,6 +24,13 @@ impl Stain {
             Ok(l) => Ok(l),
             Err(e) => bail!(e.to_string()),
         }
+    }
+    pub fn to_hash_map() -> HashMap<String, u8> {
+        let mut map = HashMap::new();
+        for stain in Stain::list() {
+            map.insert(stain.to_string(), stain as u8);
+        }
+        map
     }
 }
 

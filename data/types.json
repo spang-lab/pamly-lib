@@ -1,0 +1,49 @@
+{
+  "diagnosis": {
+    "HL": 1,
+    "CLL": 3,
+    "MCL": 5,
+    "LTDS": 6,
+    "FL": 4,
+    "Unknown": 0,
+    "DLBCL": 2
+  },
+  "tileLabel": {
+    "BloodVessel": 21,
+    "Empty": 5,
+    "Mucosa": 28,
+    "MucosaSmallIntestine": 31,
+    "Bone": 36,
+    "MuscleSmooth": 26,
+    "MuscleStriated": 27,
+    "Blood": 20,
+    "Unknown": 1,
+    "MucosaStomach": 29,
+    "MucosaLargeIntestine": 30,
+    "Lymphatic": 24,
+    "Epithelium": 32,
+    "TumorPartial": 17,
+    "Tumor": 16,
+    "EpitheliumSquamous": 33,
+    "NonExisting": 3,
+    "Muscle": 25,
+    "Cns": 35,
+    "Bonemarrow": 37,
+    "FattyTissue": 22,
+    "Artefact": 4,
+    "ConnectiveTissue": 19,
+    "Necrosis": 23,
+    "Unlabeled": 0,
+    "Other": 2,
+    "TumorInvasive": 18,
+    "EpitheliumGland": 34
+  },
+  "stain": {
+    "HE": 1,
+    "Unknown": 0,
+    "CD30": 30,
+    "CD3": 3,
+    "CD68": 68,
+    "CD20": 20
+  }
+}

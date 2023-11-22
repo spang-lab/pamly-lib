@@ -1,7 +1,7 @@
 #[cfg(feature = "openslide")]
 mod openslide;
 
-mod types;
+pub mod types;
 
 mod util;
 
