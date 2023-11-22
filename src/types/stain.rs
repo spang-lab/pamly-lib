@@ -1,4 +1,5 @@
 use anyhow::{bail, Result};
+use neon::{context::Context, object::Object, result::JsResult, types::JsObject};
 use pyo3::{pyclass, pymethods, PyResult};
 use std::convert::TryFrom;
 use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
@@ -25,6 +26,16 @@ impl Stain {
             Err(e) => bail!(e.to_string()),
         }
     }
+    pub fn to_object<'a>(cx: &mut impl Context<'a>) -> JsResult<'a, JsObject> {
+        let obj = cx.empty_object();
+        for stain in Stain::list() {
+            let stain_string = stain.to_string();
+            let stain_str = stain_string.as_str();
+            let stain_num = cx.number(stain as u8);
+            obj.set(cx, stain_str, stain_num)?;
+        }
+        Ok(obj)
+    }
 }
 
 #[pymethods]
@@ -47,10 +58,10 @@ impl Stain {
 impl TryFrom<u8> for Stain {
     type Error = anyhow::Error;
     fn try_from(value: u8) -> Result<Stain> {
-        let labels = Stain::list();
-        for label in labels {
-            if label as u8 == value {
-                return Ok(label);
+        let stains = Stain::list();
+        for stain in stains {
+            if stain as u8 == value {
+                return Ok(stain);
             }
         }
         bail!("No stain for number {}", value);

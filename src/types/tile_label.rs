@@ -1,4 +1,5 @@
 use anyhow::{bail, Result};
+use neon::{context::Context, object::Object, result::JsResult, types::JsObject};
 use pyo3::{pyclass, pymethods, PyResult};
 use std::convert::TryFrom;
 use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
@@ -45,6 +46,16 @@ impl TileLabel {
             Ok(l) => Ok(l),
             Err(e) => bail!(e.to_string()),
         }
+    }
+    pub fn to_object<'a>(cx: &mut impl Context<'a>) -> JsResult<'a, JsObject> {
+        let obj = cx.empty_object();
+        for label in TileLabel::list() {
+            let label_string = label.to_string();
+            let label_str = label_string.as_str();
+            let label_num = cx.number(label as u8);
+            obj.set(cx, label_str, label_num)?;
+        }
+        Ok(obj)
     }
 }
 

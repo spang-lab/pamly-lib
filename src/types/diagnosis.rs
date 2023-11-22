@@ -1,4 +1,5 @@
 use anyhow::{bail, Result};
+use neon::{context::Context, object::Object, result::JsResult, types::JsObject};
 use pyo3::{pyclass, pymethods, PyResult};
 use std::convert::TryFrom;
 use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
@@ -26,6 +27,16 @@ impl Diagnosis {
             Err(e) => bail!(e.to_string()),
         }
     }
+    pub fn to_object<'a>(cx: &mut impl Context<'a>) -> JsResult<'a, JsObject> {
+        let obj = cx.empty_object();
+        for diagnosis in Diagnosis::list() {
+            let diagnosis_string = diagnosis.to_string();
+            let diagnosis_str = diagnosis_string.as_str();
+            let diagnosis_num = cx.number(diagnosis as u8);
+            obj.set(cx, diagnosis_str, diagnosis_num)?;
+        }
+        Ok(obj)
+    }
 }
 
 #[pymethods]
@@ -48,10 +59,9 @@ impl Diagnosis {
 impl TryFrom<u8> for Diagnosis {
     type Error = anyhow::Error;
     fn try_from(value: u8) -> Result<Diagnosis> {
-        let labels = Diagnosis::list();
-        for label in labels {
-            if label as u8 == value {
-                return Ok(label);
+        for diagnosis in Diagnosis::list() {
+            if diagnosis as u8 == value {
+                return Ok(diagnosis);
             }
         }
         bail!("No diagnosis for number {}", value);

@@ -1,5 +1,10 @@
-/target
+target
 /dev
+
+index.node
+**/node_modules
+**/.DS_Store
+npm-debug.log*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
