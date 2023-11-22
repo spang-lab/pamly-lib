@@ -17,7 +17,7 @@ fi
 
 
 VERSION="$(npm version --no-git-tag-version "$1")"
-$SED_COMMAND -i "s/^version = .*/version = \"${VERSION#v}\"/" Cargo.toml
+$SED_COMMAND -i "0,/^version/s/^version = .*/version = \"${VERSION#v}\"/" Cargo.toml
 
 npm install  # update lockfile
 git add -A
