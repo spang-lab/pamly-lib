@@ -352,7 +352,7 @@ checksum = "dd8b5dd2ae5ed71462c540258bedcb51965123ad7e7ccf4b9a8cafaa4a63576d"
 
 [[package]]
 name = "pamly"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "anyhow",
  "image",
