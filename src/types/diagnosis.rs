@@ -50,6 +50,12 @@ impl Diagnosis {
         let diagnosis = Diagnosis::from(s)?;
         Ok(diagnosis)
     }
+
+    #[staticmethod]
+    pub fn from_int(v: u8) -> PyResult<Diagnosis> {
+        let diagnosis = Diagnosis::try_from(v as u8)?;
+        Ok(diagnosis)
+    }
 }
 
 impl TryFrom<u8> for Diagnosis {

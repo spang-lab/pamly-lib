@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs::File};
+use std::{collections::HashMap, fs::File, path::PathBuf};
 
 use anyhow::{bail, Result};
 use clap::{Args, CommandFactory, Parser, Subcommand};
@@ -18,19 +18,35 @@ struct Cli {
 enum Commands {
     /// Generate types files
     Types(TypesArgs),
+    #[cfg(feature = "convert")]
+    Convert(ConvertArgs),
 }
 
 #[derive(Args)]
 struct TypesArgs {
-    /// The path where to new key should be stored
     #[arg(value_name = "Output Path")]
     out_path: Option<String>,
+}
+
+#[derive(Args)]
+struct ConvertArgs {
+    /// The path to the slide
+    #[arg(value_name = "Slide Path")]
+    path_str: String,
 }
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match &cli.command {
+        #[cfg(feature = "convert")]
+        Commands::Convert(args) => {
+            let ConvertArgs { path_str } = args;
+            let path = PathBuf::from(path_str);
+            let base_path = path.parent().unwrap();
+            let sqlite_path = base_path.join("slide.sqlite").to_owned();
+            dbg!(path, sqlite_path);
+        }
         Commands::Types(args) => {
             let TypesArgs { out_path } = args;
 

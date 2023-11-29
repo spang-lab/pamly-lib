@@ -6,3 +6,6 @@ pub use stain::Stain;
 
 mod tile_label;
 pub use tile_label::TileLabel;
+
+mod tile;
+pub use tile::Tile;

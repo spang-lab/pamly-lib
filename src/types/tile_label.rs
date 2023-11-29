@@ -70,6 +70,11 @@ impl TileLabel {
         let s = format!("{}", self);
         s
     }
+    #[staticmethod]
+    pub fn from_int(v: u8) -> PyResult<TileLabel> {
+        let label = TileLabel::try_from(v as u8)?;
+        Ok(label)
+    }
 }
 
 impl TryFrom<u8> for TileLabel {

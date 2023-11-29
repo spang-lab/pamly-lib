@@ -15,7 +15,7 @@ path = "src/main.rs"
 
 [features]
 default = []
-openslide = ["dep:libc"]
+convert = ["dep:libc"]
 
 [dependencies]
 anyhow = "1.0.75"

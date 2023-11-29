@@ -1,13 +1,12 @@
-#[cfg(feature = "openslide")]
-mod openslide;
+#[cfg(feature = "convert")]
+mod convert;
 
 pub mod types;
-
+pub use types::*;
 mod util;
 
 use pyo3::prelude::*;
 
-/// A Python module implemented in Rust.
 #[pymodule]
 fn pamly(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<types::Diagnosis>()?;

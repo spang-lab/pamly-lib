@@ -6,9 +6,6 @@ use super::bindings;
 use std::path::PathBuf;
 
 const LEVEL: i32 = 0;
-// const X_RESOLUTION_KEY:&'static str = "tiff.XResolution";
-// const Y_RESOLUTION_KEY:&'static str = "tiff.YResolution";
-
 const X_RESOLUTION_KEY: &'static str = "openslide.mpp-x";
 const Y_RESOLUTION_KEY: &'static str = "openslide.mpp-y";
 
@@ -58,7 +55,7 @@ impl OpenSlide {
             Ok(r) => r,
             Err(_) => bail!("Call to read_region failed"),
         };
-        let mut rgb: Vec<u8> = Vec::with_capacity(data.len() * 3);
+        let mut rgb: Vec<u8> = Vec::with_capacity(data.len() * 4);
         for value in data.iter() {
             let [a, r, g, b] = value.to_be_bytes();
             match a {

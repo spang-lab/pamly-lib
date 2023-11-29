@@ -49,6 +49,12 @@ impl Stain {
         let s = Stain::from(s)?;
         Ok(s)
     }
+
+    #[staticmethod]
+    pub fn from_int(v: u8) -> PyResult<Stain> {
+        let stain = Stain::try_from(v as u8)?;
+        Ok(stain)
+    }
 }
 
 impl TryFrom<u8> for Stain {
