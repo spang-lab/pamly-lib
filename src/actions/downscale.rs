@@ -64,7 +64,7 @@ fn compute_tile(db: &Database, tile: &mut Tile, lock: &mut LockFile) -> Result<(
     Ok(())
 }
 
-pub fn upscale(db: &Database, lock: &mut LockFile) -> Result<()> {
+pub fn downscale(db: &Database, lock: &mut LockFile) -> Result<()> {
     let mut total_nodes: u64 = 0;
     let base: u64 = 4;
     let meta = db.meta()?;

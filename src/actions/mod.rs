@@ -1,6 +1,5 @@
-mod upscale;
-
-pub use upscale::upscale;
+mod downscale;
+pub use downscale::downscale;
 
 mod crop;
 pub use crop::crop;
