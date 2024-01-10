@@ -1,11 +1,12 @@
 use anyhow::{bail, Result};
-use image::RgbImage;
+use image::{DynamicImage, ImageOutputFormat, RgbImage};
+use std::io::Cursor;
 
 pub struct Tile {
     data: Option<RgbImage>,
     size: u64,
     level: u64,
-    pos: (u64, u64),
+    pub pos: (u64, u64),
 }
 
 impl Tile {
@@ -44,9 +45,23 @@ impl Tile {
             None => bail!("Tile is empty"),
         }
     }
+    pub fn data(&self) -> Result<Vec<u8>> {
+        let image = self.image()?;
+        let mut bytes = Cursor::new(Vec::new());
+        let format = ImageOutputFormat::Jpeg(90);
+        let img = DynamicImage::ImageRgb8(image.clone());
+        img.write_to(&mut bytes, format)?;
+        Ok(bytes.into_inner())
+    }
 
     pub fn size(&self) -> u64 {
         self.size
+    }
+    pub fn level(&self) -> u64 {
+        self.level
+    }
+    pub fn pos(&self) -> (u64, u64) {
+        self.pos
     }
 
     pub fn coords(&self) -> (u64, u64) {

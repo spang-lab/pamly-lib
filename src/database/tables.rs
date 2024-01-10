@@ -15,7 +15,7 @@ impl Database {
 
     pub fn check_tables(&self) -> Result<()> {
         self.check_writeable()?;
-        let tables = vec!["tiles", "metadata", "diagnosis_details", "diagnosis"];
+        let tables = vec!["tiles", "metadata", "labels"];
         for table_name in tables {
             if !self.table_exists(table_name.to_owned())? {
                 match table_name {

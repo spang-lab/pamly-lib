@@ -1,9 +1,14 @@
 #[cfg(feature = "convert")]
 mod convert;
 
+mod database;
+pub use database::Database;
+
+mod actions;
+mod util;
+
 pub mod types;
 pub use types::*;
-mod util;
 
 use pyo3::prelude::*;
 
