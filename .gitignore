@@ -1,5 +1,6 @@
 target
 /dev
+/test
 
 index.node
 **/node_modules

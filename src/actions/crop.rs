@@ -29,9 +29,8 @@ fn min_tile(db: &Connection, level: u64) -> Result<(u64, u64)> {
 
 pub fn crop(db: &Database) -> Result<()> {
     let connection = db.connection();
-    let meta = db.meta()?;
-    let level = meta.levels - 1;
-    let tile_size = meta.tile_size;
+    let level = db.levels() - 1;
+    let tile_size = db.tile_size();
 
     let min_t = min_tile(connection, level)?;
     let max_t = max_tile(connection, level)?;
@@ -56,8 +55,8 @@ pub fn crop(db: &Database) -> Result<()> {
     statement.bind((3, new_level as i64))?;
     statement.bind((4, level as i64))?;
     statement.next()?;
-    db.set_meta("levels".to_owned(), (new_level + 1).to_string())?;
-    db.set_meta("width".to_owned(), size.0.to_string())?;
-    db.set_meta("height".to_owned(), size.1.to_string())?;
+    db.set_meta("levels", &(new_level + 1).to_string())?;
+    db.set_meta("width", &size.0.to_string())?;
+    db.set_meta("height", &size.1.to_string())?;
     Ok(())
 }

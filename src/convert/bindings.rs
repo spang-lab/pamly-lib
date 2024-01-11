@@ -2,31 +2,20 @@ use anyhow::{bail, Error};
 use libc;
 use std::{self, ffi, str};
 
-/// Dummy type for the openslide_t type in OpenSlide
 pub enum OpenSlideT {}
 
 #[link(name = "openslide")]
 extern "C" {
-
-    // ---------------
-    // Basic usage
-    // ---------------
-
     fn openslide_detect_vendor(filename: *const libc::c_char) -> *const libc::c_char;
-
     fn openslide_open(filename: *const libc::c_char) -> *const OpenSlideT;
-
     fn openslide_close(osr: *const OpenSlideT) -> libc::c_void;
-
     fn openslide_get_level_dimensions(
         osr: *const OpenSlideT,
         level: i32,
         w: *mut i64,
         h: *mut i64,
     ) -> libc::c_void;
-
     fn openslide_get_level_downsample(osr: *const OpenSlideT, level: i32) -> libc::c_double;
-
     fn openslide_read_region(
         osr: *const OpenSlideT,
         dest: *mut u32,
@@ -36,21 +25,7 @@ extern "C" {
         w: i64,
         h: i64,
     ) -> libc::c_void;
-
-    // ---------------
-    // Error handling
-    // ---------------
-
-    // fn openslide_get_error(
-    //     osr: *const OpenSlideT
-    // ) -> *const libc::c_char;
-
-    // ---------------
-    // Properties
-    // ---------------
-
     fn openslide_get_property_names(osr: *const OpenSlideT) -> *const *const libc::c_char;
-
     fn openslide_get_property_value(
         osr: *const OpenSlideT,
         name: *const libc::c_char,
@@ -72,13 +47,6 @@ pub fn detect_vendor(filename: &str) -> Result<String, Error> {
         ffi::CStr::from_ptr(c_vendor).to_string_lossy().into_owned()
     };
     Ok(vendor)
-}
-
-/// Open a whole slide image.
-pub fn open(filename: &str) -> Result<*const OpenSlideT, Error> {
-    let c_filename = ffi::CString::new(filename)?;
-    let slide = unsafe { openslide_open(c_filename.as_ptr()) };
-    Ok(slide)
 }
 
 /// Close an OpenSlide object.

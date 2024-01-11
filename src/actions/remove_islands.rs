@@ -1,31 +1,24 @@
-use crate::Config;
-use anyhow::Result;
-
-use std::collections::HashSet;
-
-use patho_io::{Database};
-
 fn get_size(graph: &HashSet<(u64, u64)>) -> (u64, u64) {
-        let first = graph.iter().next().unwrap();
-        let mut max = first.clone();
-        let mut min = first.clone();
-        for node in graph {
-            let (x, y) = node;
-            if *x > max.0 {
-                max.0 = *x;
-            }
-            if *x < min.0 {
-                min.0 = *x;
-            }
-            if *y > max.1 {
-                max.1 = *y;
-            }
-            if *y < min.1 {
-                min.1 = *y;
-            }
+    let first = graph.iter().next().unwrap();
+    let mut max = first.clone();
+    let mut min = first.clone();
+    for node in graph {
+        let (x, y) = node;
+        if *x > max.0 {
+            max.0 = *x;
         }
-        let size = (max.0 - min.0 + 1, max.1 - min.1 + 1);
-        size
+        if *x < min.0 {
+            min.0 = *x;
+        }
+        if *y > max.1 {
+            max.1 = *y;
+        }
+        if *y < min.1 {
+            min.1 = *y;
+        }
+    }
+    let size = (max.0 - min.0 + 1, max.1 - min.1 + 1);
+    size
 }
 
 fn find_connected_subgraphs(mut graph: HashSet<(u64, u64)>) -> Vec<HashSet<(u64, u64)>> {
@@ -51,8 +44,8 @@ fn find_connected_subgraphs(mut graph: HashSet<(u64, u64)>) -> Vec<HashSet<(u64,
                         }
                         stack.push((n.0 as u64, n.1 as u64));
                     }
-                },
-                None => {},
+                }
+                None => {}
             };
         }
         subgraphs.push(subgraph);
@@ -61,10 +54,10 @@ fn find_connected_subgraphs(mut graph: HashSet<(u64, u64)>) -> Vec<HashSet<(u64,
 }
 
 pub fn delete_islands(db: &Database, levels: u64, c: &Config) -> Result<()> {
-    let level = levels - 1; 
+    let level = levels - 1;
 
     let tiles = db.list_tiles(level)?;
-    let graph:HashSet<(u64, u64)> = tiles.into_iter().collect();
+    let graph: HashSet<(u64, u64)> = tiles.into_iter().collect();
     let subgraphs = find_connected_subgraphs(graph);
 
     for graph in subgraphs {
@@ -72,7 +65,7 @@ pub fn delete_islands(db: &Database, levels: u64, c: &Config) -> Result<()> {
         if size.0 < c.min_island_size || size.1 < c.min_island_size {
             println!("Removing island with size {}x{}", size.0, size.1);
             for node in &graph {
-                db.delete(node.clone(), level)?; 
+                db.delete(node.clone(), level)?;
             }
         }
     }

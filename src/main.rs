@@ -1,9 +1,13 @@
-use std::{collections::HashMap, fs::File, path::PathBuf};
-
 use anyhow::{bail, Result};
 use clap::{Args, CommandFactory, Parser, Subcommand};
+use log::Level;
+use std::{collections::HashMap, fs::File, path::PathBuf};
+
+#[cfg(feature = "convert")]
+use pamly::convert::{convert, Config};
 
 use pamly::types::{Diagnosis, Stain, TileLabel};
+use pamly::LockFile;
 
 /// Pamly Command line Interface
 #[derive(Parser)]
@@ -12,6 +16,10 @@ use pamly::types::{Diagnosis, Stain, TileLabel};
 struct Cli {
     #[command(subcommand)]
     command: Commands,
+    #[arg(short, long)]
+    quiet: bool,
+    #[arg(short, long)]
+    verbose: bool,
 }
 
 #[derive(Subcommand)]
@@ -33,19 +41,78 @@ struct ConvertArgs {
     /// The path to the slide
     #[arg(value_name = "Slide Path")]
     path_str: String,
+    /// Optional config file
+    #[arg(short, long)]
+    config: Option<String>,
+    /// Output file path, default ./slide.sqlite
+    #[arg(short, long)]
+    output: Option<String>,
+    /// Ignore overwrite of slide and existing lock
+    #[arg(short, long)]
+    force: bool,
 }
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
 
+    let mut level = Level::Info;
+    if cli.quiet {
+        level = Level::Warn;
+    }
+    if cli.verbose {
+        level = Level::Debug;
+    }
+    simple_logger::init_with_level(level)?;
+
     match &cli.command {
         #[cfg(feature = "convert")]
         Commands::Convert(args) => {
-            let ConvertArgs { path_str } = args;
+            let ConvertArgs {
+                path_str,
+                config,
+                output,
+                force,
+            } = args;
             let path = PathBuf::from(path_str);
-            let base_path = path.parent().unwrap();
-            let sqlite_path = base_path.join("slide.sqlite").to_owned();
-            dbg!(path, sqlite_path);
+            if !path.is_file() {
+                log::error!("{} is not a file.", path.display());
+                bail!("{} is not a file.", path.display());
+            }
+            let db_path = match output {
+                Some(s) => PathBuf::from(s),
+                None => {
+                    let base_path = path.parent().unwrap();
+                    base_path.join("slide.sqlite").to_owned()
+                }
+            };
+            if db_path.is_file() {
+                if *force {
+                    log::warn!("Overwriting {}", db_path.display());
+                    std::fs::remove_file(&db_path)?;
+                } else {
+                    log::error!("{} already exists", db_path.display());
+                    bail!("{} already exists", db_path.display());
+                }
+            }
+            if LockFile::exists(&db_path)? {
+                if *force {
+                    log::warn!("Ignoriung lockfile");
+                } else {
+                    log::debug!("LockFile exists. Skipping.");
+                    return Ok(());
+                }
+            }
+
+            let config = match config {
+                Some(s) => {
+                    let path = PathBuf::from(s);
+                    Config::from(path)?
+                }
+                None => Config::default(),
+            };
+            log::debug!("Config:\n {}", serde_json::to_string_pretty(&config)?);
+            log::debug!("Convert from {} to {}", &path.display(), &db_path.display());
+            convert(path, db_path, &config)?;
         }
         Commands::Types(args) => {
             let TypesArgs { out_path } = args;

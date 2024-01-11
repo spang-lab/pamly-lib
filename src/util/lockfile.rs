@@ -15,10 +15,10 @@ pub struct LockFile {
     pub error: Option<String>,
 }
 
-fn get_lock_path(path: PathBuf) -> Result<PathBuf> {
+fn get_lock_path(path: &PathBuf) -> Result<PathBuf> {
     let filename = "pamly.lock";
     let base_path = if path.is_dir() {
-        path
+        path.clone()
     } else {
         match path.parent() {
             Some(p) => p.to_owned(),
@@ -30,7 +30,12 @@ fn get_lock_path(path: PathBuf) -> Result<PathBuf> {
 }
 
 impl LockFile {
-    pub fn find(path: PathBuf) -> Result<Option<LockFile>> {
+    pub fn exists(path: &PathBuf) -> Result<bool> {
+        let lock_path = get_lock_path(path)?;
+        Ok(lock_path.is_file())
+    }
+
+    pub fn find(path: &PathBuf) -> Result<Option<LockFile>> {
         let lock_path = get_lock_path(path)?;
         if !lock_path.is_file() {
             return Ok(None);
@@ -40,11 +45,11 @@ impl LockFile {
         lock.path = Some(lock_path);
         Ok(Some(lock))
     }
-    pub fn lock(path: PathBuf, state: String) -> Result<LockFile> {
+    pub fn lock(path: &PathBuf, state: &str) -> Result<LockFile> {
         let lock_path = get_lock_path(path)?;
         let lock = LockFile {
             path: Some(lock_path),
-            state,
+            state: state.to_owned(),
             total: 0,
             current: 0,
             error: None,
@@ -66,6 +71,13 @@ impl LockFile {
             Some(p) => p,
             None => bail!("no path"),
         };
+        log::info!(
+            "{} {}/{} ({}%)",
+            self.state,
+            self.current,
+            self.total,
+            self.percent()
+        );
         let file = fs::File::create(path)?;
         serde_json::to_writer_pretty(file, &self)?;
         Ok(())
@@ -77,6 +89,10 @@ impl LockFile {
     pub fn start(&mut self, total: u64) -> Result<()> {
         self.total = total;
         self.current = 0;
+        self.write()
+    }
+    pub fn state(&mut self, state: &str) -> Result<()> {
+        self.state = state.to_owned();
         self.write()
     }
 

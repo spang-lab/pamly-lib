@@ -41,7 +41,7 @@ fn compute_tile(db: &Database, tile: &mut Tile, lock: &mut LockFile) -> Result<(
     let pos = tile.pos();
     let level = tile.level();
     let size = tile.size();
-    let levels = db.meta()?.levels;
+    let levels = db.levels();
 
     let existing_tile = db.read(pos, level)?;
     if !existing_tile.is_empty() || level == levels - 1 {
@@ -67,13 +67,13 @@ fn compute_tile(db: &Database, tile: &mut Tile, lock: &mut LockFile) -> Result<(
 pub fn downscale(db: &Database, lock: &mut LockFile) -> Result<()> {
     let mut total_nodes: u64 = 0;
     let base: u64 = 4;
-    let meta = db.meta()?;
-    let levels = meta.levels;
-    let tile_size = meta.tile_size;
+    let levels = db.levels();
+    let tile_size = db.tile_size();
 
     for i in 0..levels {
         total_nodes += base.pow(i as u32);
     }
+    lock.state("Downscaling")?;
     lock.start(total_nodes)?;
     let mut root_tile = Tile::new((0, 0), 0, tile_size);
     compute_tile(db, &mut root_tile, lock)?;

@@ -5,7 +5,7 @@ use sqlite::State;
 
 impl Database {
     pub fn read(&self, pos: (u64, u64), level: u64) -> Result<Tile> {
-        let tile_size = self.meta()?.tile_size;
+        let tile_size = self.tile_size();
         let mut tile = Tile::new(pos, level, tile_size);
 
         let (x, y) = pos;
