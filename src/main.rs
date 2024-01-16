@@ -5,9 +5,8 @@ use log::Level;
 use std::{collections::HashMap, fs::File, path::PathBuf};
 
 #[cfg(feature = "convert")]
-use pamly::convert::{convert, Config};
+use pamly::convert::{convert, downscale, Config};
 
-use pamly::actions;
 use pamly::types::{Diagnosis, Stain, TileLabel};
 use pamly::{Database, LockFile};
 
@@ -30,8 +29,9 @@ enum Commands {
     Types(TypesArgs),
     #[cfg(feature = "convert")]
     Convert(ConvertArgs),
-    Thumbnail(ThumbnailArgs),
+    #[cfg(feature = "convert")]
     Downscale(DownscaleArgs),
+    Thumbnail(ThumbnailArgs),
 }
 
 #[derive(Args)]
@@ -136,12 +136,13 @@ fn main() -> Result<()> {
             convert(path, db_path, &config)?;
         }
 
+        #[cfg(feature = "convert")]
         Commands::Downscale(args) => {
             let DownscaleArgs { path_str } = args;
             let db_path = PathBuf::from(path_str);
             let mut lock = LockFile::lock(&db_path, "Init")?;
             let db = Database::open_readwrite(&db_path)?;
-            actions::downscale(&db, &mut lock)?;
+            downscale(&db, &mut lock)?;
             lock.release()?;
         }
 

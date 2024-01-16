@@ -2,7 +2,8 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 
-use crate::actions::{crop, downscale, read_slide, remove_islands};
+use super::actions;
+
 use crate::database::SlideData;
 use crate::util::LockFile;
 use crate::Database;
@@ -38,10 +39,10 @@ pub fn convert(slide_path: PathBuf, db_path: PathBuf, config: &Config) -> Result
     config_map.insert("slide_path".to_owned(), path_str);
 
     let mut lock = LockFile::lock(&db_path, "Init")?;
-    read_slide(&slide, &db, config, &mut lock)?;
-    remove_islands(&db, config, &mut lock)?;
-    crop(&mut db)?;
-    downscale(&db, &mut lock)?;
+    actions::read_slide(&slide, &db, config, &mut lock)?;
+    actions::remove_islands(&db, config, &mut lock)?;
+    actions::crop(&mut db)?;
+    actions::downscale(&db, &mut lock)?;
 
     db.write_metadata(config_map)?;
     lock.release()?;
