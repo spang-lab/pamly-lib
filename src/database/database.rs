@@ -7,7 +7,7 @@ use super::SlideData;
 pub struct Database {
     pub db: Connection,
     path: PathBuf,
-    data: SlideData,
+    pub data: SlideData,
     writeable: bool,
 }
 

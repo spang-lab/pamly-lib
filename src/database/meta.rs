@@ -76,8 +76,8 @@ impl SlideData {
             levels: read_u64(db, "levels")?,
             width: read_u64(db, "width")?,
             height: read_u64(db, "height")?,
-            x_ppm: read_u64(db, "resolution_x_ppm")?,
-            y_ppm: read_u64(db, "resolution_y_ppm")?,
+            x_ppm: read_u64(db, "x_ppm")?,
+            y_ppm: read_u64(db, "y_ppm")?,
         })
     }
     pub fn write_to(&self, db: &Connection) -> Result<()> {

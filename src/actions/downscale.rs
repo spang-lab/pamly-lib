@@ -6,10 +6,11 @@ use crate::util::LockFile;
 use crate::{Database, Tile};
 
 fn combine_into(tile: &mut Tile, tiles: Vec<Tile>) -> Result<()> {
-    let non_empty = tiles.iter().find(|t| !t.is_empty());
-    if non_empty.is_none() {
+    let is_empty = tiles.iter().all(|t| t.is_empty());
+    if is_empty {
         return Ok(());
     }
+
     let s = tile.size() as u32;
     let white = Rgb([255, 255, 255]);
     let mut result: RgbImage = ImageBuffer::from_pixel(2 * s, 2 * s, white);
@@ -44,6 +45,10 @@ fn compute_tile(db: &Database, tile: &mut Tile, lock: &mut LockFile) -> Result<(
     let levels = db.levels();
 
     let existing_tile = db.read(pos, level)?;
+    if !existing_tile.is_empty() {
+        let image = existing_tile.image()?;
+        tile.set_image(image.clone())?;
+    }
     if !existing_tile.is_empty() || level == levels - 1 {
         return Ok(());
     }

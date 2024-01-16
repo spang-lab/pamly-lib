@@ -1,5 +1,4 @@
-use super::Database;
-use crate::Tile;
+use crate::{Database, Tile};
 use anyhow::{bail, Ok, Result};
 use sqlite::State;
 
@@ -7,7 +6,6 @@ impl Database {
     pub fn read(&self, pos: (u64, u64), level: u64) -> Result<Tile> {
         let tile_size = self.tile_size();
         let mut tile = Tile::new(pos, level, tile_size);
-
         let (x, y) = pos;
         let statement = "SELECT jpeg from tiles WHERE
             x = ? AND
@@ -29,6 +27,35 @@ impl Database {
         };
         return Ok(tile);
     }
+
+    pub fn read_many(&self, start: (u64, u64), end: (u64, u64), level: u64) -> Result<Vec<Tile>> {
+        let tile_size = self.tile_size();
+
+        let statement = "SELECT x, y, jpeg from tiles WHERE
+            x >= ? AND x < ? AND
+            y >= ? AND y < ? AND
+            level = ? AND
+            type = 0
+        ";
+        let mut statement = self.db.prepare(statement)?;
+        statement.bind((1, start.0 as i64))?;
+        statement.bind((2, end.0 as i64))?;
+        statement.bind((3, start.1 as i64))?;
+        statement.bind((4, end.1 as i64))?;
+        statement.bind((5, level as i64))?;
+
+        let mut tiles = Vec::new();
+        while statement.next()? == State::Row {
+            let x = statement.read::<i64, _>(0)?;
+            let y = statement.read::<i64, _>(1)?;
+            let data = statement.read::<Vec<u8>, _>(2)?;
+            let mut tile = Tile::new((x as u64, y as u64), level, tile_size);
+            tile.set_data(data)?;
+            tiles.push(tile);
+        }
+        Ok(tiles)
+    }
+
     pub fn delete(&self, pos: (u64, u64), level: u64) -> Result<()> {
         let (x, y) = pos;
         let statement = "DELETE from tiles WHERE

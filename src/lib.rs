@@ -5,7 +5,9 @@ mod database;
 pub use database::Database;
 pub use database::SlideData;
 
-mod actions;
+pub mod actions;
+pub use actions::*;
+
 mod util;
 pub use util::*;
 

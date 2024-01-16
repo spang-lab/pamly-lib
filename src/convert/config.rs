@@ -11,8 +11,8 @@ pub struct Config {
     pub min_edge_content: f64,
     pub dark_threshold: f64,
     pub min_dark_content: f64,
-    pub min_island_size: u64,
-    pub min_island_tiles: u64,
+    pub island_size: u64,
+    pub island_tiles: u64,
 }
 
 impl Config {
@@ -26,8 +26,8 @@ impl Config {
             min_edge_content: 0.03,
             dark_threshold: 0.80,
             min_dark_content: 0.30,
-            min_island_size: 5,
-            min_island_tiles: 15,
+            island_size: 5,
+            island_tiles: 15,
         };
         c
     }
@@ -65,14 +65,8 @@ impl Config {
             "min_dark_content".to_owned(),
             self.min_dark_content.to_string(),
         );
-        map.insert(
-            "min_island_size".to_owned(),
-            self.min_island_size.to_string(),
-        );
-        map.insert(
-            "min_island_tiles".to_owned(),
-            self.min_island_tiles.to_string(),
-        );
+        map.insert("island_size".to_owned(), self.island_size.to_string());
+        map.insert("island_tiles".to_owned(), self.island_tiles.to_string());
         Ok(map)
     }
 }

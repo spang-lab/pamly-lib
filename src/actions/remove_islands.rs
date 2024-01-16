@@ -1,3 +1,9 @@
+use crate::convert::Config;
+use crate::util::LockFile;
+use crate::Database;
+use anyhow::Result;
+use std::collections::HashSet;
+
 fn get_size(graph: &HashSet<(u64, u64)>) -> (u64, u64) {
     let first = graph.iter().next().unwrap();
     let mut max = first.clone();
@@ -21,8 +27,13 @@ fn get_size(graph: &HashSet<(u64, u64)>) -> (u64, u64) {
     size
 }
 
-fn find_connected_subgraphs(mut graph: HashSet<(u64, u64)>) -> Vec<HashSet<(u64, u64)>> {
+fn find_connected_subgraphs(
+    mut graph: HashSet<(u64, u64)>,
+    lock: &mut LockFile,
+) -> Result<Vec<HashSet<(u64, u64)>>> {
     let mut subgraphs = Vec::new();
+    lock.state("Island removal")?;
+    lock.start(graph.len() as u64)?;
 
     while !graph.is_empty() {
         let first = graph.iter().next().unwrap();
@@ -33,6 +44,7 @@ fn find_connected_subgraphs(mut graph: HashSet<(u64, u64)>) -> Vec<HashSet<(u64,
             let node = stack.pop().unwrap();
             match graph.take(&node) {
                 Some(n) => {
+                    lock.inc()?;
                     subgraph.insert(n);
                     let (ux, uy) = n;
                     let x = ux as i64;
@@ -50,20 +62,25 @@ fn find_connected_subgraphs(mut graph: HashSet<(u64, u64)>) -> Vec<HashSet<(u64,
         }
         subgraphs.push(subgraph);
     }
-    subgraphs
+    lock.finish()?;
+    Ok(subgraphs)
 }
 
-pub fn delete_islands(db: &Database, levels: u64, c: &Config) -> Result<()> {
-    let level = levels - 1;
+pub fn remove_islands(db: &Database, c: &Config, lock: &mut LockFile) -> Result<()> {
+    let level = db.levels() - 1;
 
     let tiles = db.list_tiles(level)?;
     let graph: HashSet<(u64, u64)> = tiles.into_iter().collect();
-    let subgraphs = find_connected_subgraphs(graph);
+    let subgraphs = find_connected_subgraphs(graph, lock)?;
 
     for graph in subgraphs {
         let size = get_size(&graph);
-        if size.0 < c.min_island_size || size.1 < c.min_island_size {
-            println!("Removing island with size {}x{}", size.0, size.1);
+        let n = graph.len();
+        if n as u64 > c.island_tiles {
+            continue;
+        }
+        if size.0 < c.island_size || size.1 < c.island_size {
+            log::debug!("Removing island {}x{} {} tiles", size.0, size.1, n,);
             for node in &graph {
                 db.delete(node.clone(), level)?;
             }

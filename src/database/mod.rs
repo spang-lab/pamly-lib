@@ -1,5 +1,6 @@
 mod database;
 mod meta;
+mod patches;
 mod tables;
 mod tiles;
 

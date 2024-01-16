@@ -6,6 +6,6 @@
   "min_edge_content": 0.03,
   "dark_threshold": 0.80,
   "min_dark_content": 0.30,
-  "min_island_size": 5,
-  "min_island_tiles": 15
+  "island_size": 5,
+  "island_tiles": 15
 }

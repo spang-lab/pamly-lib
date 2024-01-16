@@ -9,3 +9,6 @@ pub use tile_label::TileLabel;
 
 mod tile;
 pub use tile::Tile;
+
+mod patch;
+pub use patch::Patch;

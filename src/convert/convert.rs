@@ -2,9 +2,10 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 
+use crate::actions::{crop, downscale, read_slide, remove_islands};
+use crate::database::SlideData;
 use crate::util::LockFile;
 use crate::Database;
-use crate::{actions::read_slide, database::SlideData};
 
 use super::{Config, OpenSlide};
 
@@ -28,7 +29,7 @@ pub fn convert(slide_path: PathBuf, db_path: PathBuf, config: &Config) -> Result
     log::debug!("  levels:       {}", levels);
 
     let slide_data = SlideData::new(tile_size, levels, width, height, x_ppm, y_ppm);
-    let db = Database::create(&db_path, slide_data)?;
+    let mut db = Database::create(&db_path, slide_data)?;
 
     let mut config_map = config.to_hash_map()?;
     let path_str = std::fs::canonicalize(slide_path)?
@@ -38,6 +39,9 @@ pub fn convert(slide_path: PathBuf, db_path: PathBuf, config: &Config) -> Result
 
     let mut lock = LockFile::lock(&db_path, "Init")?;
     read_slide(&slide, &db, config, &mut lock)?;
+    remove_islands(&db, config, &mut lock)?;
+    crop(&mut db)?;
+    downscale(&db, &mut lock)?;
 
     db.write_metadata(config_map)?;
     lock.release()?;
