@@ -1,5 +1,4 @@
-use crate::convert::Config;
-use crate::util::LockFile;
+use crate::convert::{Config, LockFile};
 use crate::Database;
 use anyhow::Result;
 use std::collections::HashSet;

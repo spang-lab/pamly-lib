@@ -2,7 +2,7 @@ use image::{imageops, ImageBuffer, Rgb, RgbImage};
 
 use anyhow::Result;
 
-use crate::util::LockFile;
+use crate::convert::LockFile;
 use crate::{Database, Tile};
 
 fn combine_into(tile: &mut Tile, tiles: Vec<Tile>) -> Result<()> {

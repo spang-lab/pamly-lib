@@ -3,9 +3,9 @@ use std::path::PathBuf;
 use anyhow::Result;
 
 use super::actions;
+use super::LockFile;
 
 use crate::database::SlideData;
-use crate::util::LockFile;
 use crate::Database;
 
 use super::{Config, OpenSlide};

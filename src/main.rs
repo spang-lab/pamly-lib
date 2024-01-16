@@ -1,14 +1,14 @@
 use anyhow::{bail, Result};
-use clap::{Args, CommandFactory, Parser, Subcommand};
+use clap::{Args, Parser, Subcommand};
 use image::ImageOutputFormat;
 use log::Level;
 use std::{collections::HashMap, fs::File, path::PathBuf};
 
 #[cfg(feature = "convert")]
-use pamly::convert::{convert, downscale, Config};
+use pamly::convert::{convert, downscale, Config, LockFile};
 
 use pamly::types::{Diagnosis, Stain, TileLabel};
-use pamly::{Database, LockFile};
+use pamly::Database;
 
 /// Pamly Command line Interface
 #[derive(Parser)]
@@ -32,6 +32,13 @@ enum Commands {
     #[cfg(feature = "convert")]
     Downscale(DownscaleArgs),
     Thumbnail(ThumbnailArgs),
+    Metadata(MetadataArgs),
+}
+
+#[derive(Args)]
+struct MetadataArgs {
+    #[arg(value_name = "Input Path")]
+    path: String,
 }
 
 #[derive(Args)]
@@ -178,6 +185,10 @@ fn main() -> Result<()> {
             } else {
                 bail!("Only sqlite thumbnails are supported.")
             }
+        }
+        Commands::Metadata(args) => {
+            let MetadataArgs { path } = args;
+            dbg!(path);
         }
 
         Commands::Types(args) => {

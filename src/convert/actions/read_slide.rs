@@ -1,5 +1,4 @@
-use crate::convert::{Config, OpenSlide};
-use crate::util::LockFile;
+use crate::convert::{Config, LockFile, OpenSlide};
 use crate::{Database, Tile};
 use anyhow::Result;
 
