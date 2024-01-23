@@ -10,8 +10,7 @@ impl Database {
         let statement = "SELECT jpeg from tiles WHERE
             x = ? AND
             y = ? AND
-            level = ? AND
-            type = 0
+            level = ?
         ";
         let mut statement = self.db.prepare(statement)?;
         statement.bind((1, x as i64))?;
@@ -34,8 +33,7 @@ impl Database {
         let statement = "SELECT x, y, jpeg from tiles WHERE
             x >= ? AND x < ? AND
             y >= ? AND y < ? AND
-            level = ? AND
-            type = 0
+            level = ?
         ";
         let mut statement = self.db.prepare(statement)?;
         statement.bind((1, start.0 as i64))?;
@@ -61,8 +59,7 @@ impl Database {
         let statement = "DELETE from tiles WHERE
             x = ? AND
             y = ? AND
-            level = ? AND
-            type = 0
+            level = ?
         ";
         let mut statement = self.db.prepare(statement)?;
         statement.bind((1, x as i64))?;
@@ -78,14 +75,14 @@ impl Database {
         }
         let (x, y) = tile.pos();
         let level = tile.level();
+        let id = tile.index();
         let data = tile.data()?;
-        let base_type = 0;
         let statement = "INSERT INTO tiles VALUES (?, ?, ?, ?, ?)";
         let mut statement = self.db.prepare(statement)?;
-        statement.bind((1, x as i64))?;
-        statement.bind((2, y as i64))?;
-        statement.bind((3, level as i64))?;
-        statement.bind((4, base_type))?;
+        statement.bind((1, id as i64))?;
+        statement.bind((2, x as i64))?;
+        statement.bind((3, y as i64))?;
+        statement.bind((4, level as i64))?;
         statement.bind((5, &data[..]))?;
 
         match statement.next()? {
@@ -96,8 +93,7 @@ impl Database {
 
     pub fn list_tiles(&self, level: u64) -> Result<Vec<(u64, u64)>> {
         let statement = "SELECT x, y from tiles WHERE
-            level = ? AND
-            type = 0
+            level = ?
         ";
         let mut statement = self.db.prepare(statement)?;
         statement.bind((1, level as i64))?;

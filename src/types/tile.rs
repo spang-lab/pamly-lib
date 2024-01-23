@@ -63,6 +63,11 @@ impl Tile {
     pub fn pos(&self) -> (u64, u64) {
         self.pos
     }
+    pub fn index(&self) -> u64 {
+        let l = self.level as u32;
+        let (x, y) = self.pos;
+        (4u64.pow(l) - 1).div_euclid(3) + y * 2u64.pow(self.level as u32) + x
+    }
 
     pub fn coords(&self) -> (u64, u64) {
         let (x, y) = self.pos;

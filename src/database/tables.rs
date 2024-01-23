@@ -15,13 +15,14 @@ impl Database {
 
     pub fn check_tables(&self) -> Result<()> {
         self.check_writeable()?;
-        let tables = vec!["tiles", "metadata", "labels"];
+        let tables = vec!["tiles", "metadata", "labels", "distances"];
         for table_name in tables {
             if !self.table_exists(table_name.to_owned())? {
                 match table_name {
                     "tiles" => self.create_tiles_table()?,
                     "metadata" => self.create_metadata_table()?,
                     "labels" => self.create_labels_table()?,
+                    "distances" => self.create_distances_table()?,
                     _ => bail!("Unknown table name {}", table_name),
                 };
             }
@@ -32,15 +33,40 @@ impl Database {
     fn create_tiles_table(&self) -> Result<()> {
         let query = "
             CREATE TABLE tiles (
+                id INTEGER PRIMARY KEY, 
                 x INTEGER,
                 y INTEGER,
                 level INTEGER,
-                type INTEGER,
                 jpeg BLOB,
-                PRIMARY KEY (x, y, level, type)
+                UNIQUE (x, y, level)
             );
         ";
         self.db.execute(query)?;
+        Ok(())
+    }
+
+    fn create_distances_table(&self) -> Result<()> {
+        let query = "
+            CREATE TABLE distances (
+                tile1 INTEGER,
+                tile2 INTEGER,
+                distance REAL,
+                UNIQUE(tile1, tile2),
+                CHECK (tile1 <> tile2),
+                FOREIGN KEY (tile1) REFERENCES tiles(id),
+                FOREIGN KEY (tile2) REFERENCES tiles(id) 
+            );
+        ";
+        self.db.execute(query)?;
+        let query = "
+            CREATE INDEX idx_tile1 ON distances(tile1)
+        ";
+        self.db.execute(query)?;
+        let query = "
+            CREATE INDEX idx_tile2 ON distances(tile2)
+        ";
+        self.db.execute(query)?;
+
         Ok(())
     }
 
@@ -55,12 +81,11 @@ impl Database {
     fn create_labels_table(&self) -> Result<()> {
         let query = "
             CREATE TABLE labels (
-                x INTEGER,
-                y INTEGER,
-                level INTEGER,
+                tile INTEGER,
                 label INTEGER,
                 source TEXT,
-                unix_time INTEGER
+                unix_time INTEGER,
+                FOREIGN KEY (tile) REFERENCES tiles(id)
             );
         ";
         self.db.execute(query)?;

@@ -4,8 +4,7 @@ use anyhow::Result;
 fn edges(db: &Database) -> Result<(u64, u64, u64, u64)> {
     let level = db.levels() - 1;
     let statement = "SELECT min(x), max(x), min(y), max(y) from tiles WHERE
-            level = ? AND
-            type = 0
+            level = ?
         ";
     let mut statement = db.connection().prepare(statement)?;
     statement.bind((1, level as i64))?;
@@ -24,8 +23,7 @@ fn move_tiles(db: &Database, dx: u64, dy: u64, new_level: u64) -> Result<()> {
                 y = y - ?,
                 level = ?
             WHERE
-                level = ? AND
-                type = 0
+                level = ?
         ";
     let mut statement = db.connection().prepare(statement)?;
     statement.bind((1, dx as i64))?;
