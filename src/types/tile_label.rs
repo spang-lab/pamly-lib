@@ -17,7 +17,7 @@ pub enum TileLabel {
     Empty                    = 0x05,
     Tumor                    = 0x10,
     TumorPartial             = 0x11,
-    TumorInvasive            = 0x12,
+    TumorPoorQuality         = 0x12,
     ConnectiveTissue         = 0x13,
     Blood                    = 0x14,
     BloodVessel              = 0x15,
