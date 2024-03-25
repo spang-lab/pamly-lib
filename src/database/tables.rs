@@ -85,6 +85,8 @@ impl Database {
                 label INTEGER,
                 source TEXT,
                 unix_time INTEGER,
+                nn_order INTEGER,
+                undo INTEGER DEFAULT 0,
                 FOREIGN KEY (tile) REFERENCES tiles(id)
             );
         ";
