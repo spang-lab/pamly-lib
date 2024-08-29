@@ -3,7 +3,7 @@ name: Publish pamly docker image
 on:
   push:
     tags:
-      - "v*"
+      - "*"
 
 jobs:
   docker:
