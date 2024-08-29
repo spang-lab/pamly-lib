@@ -1,5 +1,5 @@
 use anyhow::{bail, Result};
-use image::{codecs::jpeg::JpegEncoder, DynamicImage, ImageFormat, RgbImage};
+use image::{codecs::jpeg::JpegEncoder, DynamicImage, RgbImage};
 use std::io::Cursor;
 
 pub struct Tile {

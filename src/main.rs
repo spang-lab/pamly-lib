@@ -2,11 +2,10 @@ use anyhow::{bail, Result};
 use clap::{Args, Parser, Subcommand};
 use image::ImageFormat;
 use log::Level;
-use pamly::convert::convert_all;
 use std::{collections::HashMap, fs::File, path::PathBuf};
 
 #[cfg(feature = "convert")]
-use pamly::convert::{convert, downscale, Config, LockFile};
+use pamly::convert::{convert, convert_all, downscale, Config, LockFile};
 
 use pamly::types::{Diagnosis, Stain, TileLabel};
 use pamly::Database;

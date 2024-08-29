@@ -22,7 +22,7 @@ name = "pamly"
 path = "src/main.rs"
 
 [features]
-default = ["convert"]
+default = []
 convert = ["dep:libc"]
 
 [dependencies]
