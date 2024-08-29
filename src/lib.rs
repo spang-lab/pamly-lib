@@ -11,7 +11,7 @@ pub use types::*;
 use pyo3::prelude::*;
 
 #[pymodule]
-fn pamly(_py: Python, m: &PyModule) -> PyResult<()> {
+fn pamly(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<types::Diagnosis>()?;
     m.add_class::<types::Stain>()?;
     m.add_class::<types::TileLabel>()?;

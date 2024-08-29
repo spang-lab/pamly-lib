@@ -1,5 +1,5 @@
 use anyhow::{bail, Result};
-use image::{DynamicImage, ImageOutputFormat, RgbImage};
+use image::{DynamicImage, ImageFormat, RgbImage};
 use std::io::Cursor;
 
 pub struct Tile {
@@ -48,7 +48,7 @@ impl Tile {
     pub fn data(&self) -> Result<Vec<u8>> {
         let image = self.image()?;
         let mut bytes = Cursor::new(Vec::new());
-        let format = ImageOutputFormat::Jpeg(90);
+        let format = ImageFormat::Jpeg;
         let img = DynamicImage::ImageRgb8(image.clone());
         img.write_to(&mut bytes, format)?;
         Ok(bytes.into_inner())

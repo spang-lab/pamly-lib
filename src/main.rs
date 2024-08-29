@@ -1,6 +1,6 @@
 use anyhow::{bail, Result};
 use clap::{Args, Parser, Subcommand};
-use image::ImageOutputFormat;
+use image::ImageFormat;
 use log::Level;
 use std::{collections::HashMap, fs::File, path::PathBuf};
 
@@ -28,10 +28,17 @@ enum Commands {
     /// Generate types files
     Types(TypesArgs),
     #[cfg(feature = "convert")]
+    /// Convert a slide to a sqlite database
     Convert(ConvertArgs),
     #[cfg(feature = "convert")]
+    /// Convert a slide to a sqlite database
+    ConvertAll(ConvertAllArgs),
+    #[cfg(feature = "convert")]
+    /// Downscale a slide
     Downscale(DownscaleArgs),
+    /// Generate a thumbnail from a slide
     Thumbnail(ThumbnailArgs),
+    /// Extract metadata from a slide
     Metadata(MetadataArgs),
 }
 
@@ -69,6 +76,22 @@ struct ConvertArgs {
     #[arg(short, long)]
     output: Option<String>,
     /// Ignore overwrite of slide and existing lock
+    #[arg(short, long)]
+    force: bool,
+}
+
+#[derive(Args)]
+struct ConvertAllArgs {
+    /// The path to the slides
+    #[arg(value_name = "Slide Folder")]
+    path_str: String,
+    /// Optional config file
+    #[arg(short, long)]
+    config: Option<String>,
+    /// Output folder path
+    #[arg(short, long)]
+    output: Option<String>,
+    /// Ignore overrite of slide and existing lock
     #[arg(short, long)]
     force: bool,
 }
@@ -142,6 +165,17 @@ fn main() -> Result<()> {
             log::debug!("Convert from {} to {}", &path.display(), &db_path.display());
             convert(path, db_path, &config)?;
         }
+        #[cfg(feature = "convert")]
+        Commands::ConvertAll(args) => {
+            let ConvertAllArgs {
+                path_str,
+                config,
+                output,
+                force,
+            } = args;
+            dbg!(path_str, config, output, force);
+            unimplemented!();
+        }
 
         #[cfg(feature = "convert")]
         Commands::Downscale(args) => {
@@ -180,7 +214,7 @@ fn main() -> Result<()> {
                 let patch = slide.thumbnail(*size)?;
                 let image = patch.image()?;
                 let mut out_file = File::create(output)?;
-                image.write_to(&mut out_file, ImageOutputFormat::Jpeg(95))?;
+                image.write_to(&mut out_file, ImageFormat::Jpeg)?;
                 dbg!(size);
             } else {
                 bail!("Only sqlite thumbnails are supported.")

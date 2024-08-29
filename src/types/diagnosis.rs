@@ -5,7 +5,7 @@ use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter, Display, EnumString)]
 #[repr(u8)]
-#[pyclass]
+#[pyclass(eq, eq_int)]
 #[rustfmt::skip]
 #[strum(ascii_case_insensitive)]
 pub enum Diagnosis {
