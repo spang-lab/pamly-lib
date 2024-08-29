@@ -3,7 +3,7 @@
 The pamly-lib originates from the initial [pamly](https://pamly.spang-lab.de) project for whole slide image conversion, upload and viewing.
 The pamly-lib contains the source code for the pamly rust crate which contains the converter tool of pamly as a CLI. 
 
-## Installing and Compiling Openslide
+## Installing and Compiling Openslide locally
 
 It builds upon the C-library [Openslide](https://github.com/openslide/openslide) in order to convert the main propietary scanner formats to an accessible sqlite database.
 Thus, follow the installation and compilation instructions for [Openslide](https://github.com/openslide/openslide) as the pamly-lib depends on openslide to be properly installed.
@@ -18,6 +18,10 @@ If you've installed and compiled via the git repo, add the path to the .dylib, s
 ```
 export DYLD_LIBRARY_PATH="$HOME/.../openslide/builddir/src"
 ```
+
+## Using the provided DOCKERFILE
+
+We also provide a dockerfile building upon rust:alpine-linux.
 
 ## Installing the Converter Tool
 
