@@ -2,6 +2,7 @@ use anyhow::{bail, Result};
 use clap::{Args, Parser, Subcommand};
 use image::ImageFormat;
 use log::Level;
+use pamly::convert::convert_all;
 use std::{collections::HashMap, fs::File, path::PathBuf};
 
 #[cfg(feature = "convert")]
@@ -91,7 +92,7 @@ struct ConvertAllArgs {
     /// Output folder path
     #[arg(short, long)]
     output: Option<String>,
-    /// Ignore overrite of slide and existing lock
+    /// Ignore overwrite of slide and existing lock
     #[arg(short, long)]
     force: bool,
 }
@@ -147,7 +148,7 @@ fn main() -> Result<()> {
             }
             if LockFile::exists(&db_path)? {
                 if *force {
-                    log::warn!("Ignoriung lockfile");
+                    log::warn!("Ignoring lockfile");
                 } else {
                     log::debug!("LockFile exists. Skipping.");
                     return Ok(());
@@ -173,8 +174,30 @@ fn main() -> Result<()> {
                 output,
                 force,
             } = args;
-            dbg!(path_str, config, output, force);
-            unimplemented!();
+            let path = PathBuf::from(path_str);
+            if !path.is_dir() {
+                log::error!("{} is not a directory.", path.display());
+                bail!("{} is not a directory.", path.display());
+            }
+            let output_path = match output {
+                Some(s) => PathBuf::from(s),
+                None => PathBuf::from("./out"),
+            };
+            if !output_path.exists() {
+                std::fs::create_dir_all(&output_path)?;
+            }
+            if !output_path.is_dir() {
+                log::error!("{} is not a directory.", output_path.display());
+                bail!("{} is not a directory.", output_path.display());
+            }
+            let config = match config {
+                Some(s) => {
+                    let path = PathBuf::from(s);
+                    Config::from(path)?
+                }
+                None => Config::default(),
+            };
+            convert_all(path, output_path, &config, *force)?;
         }
 
         #[cfg(feature = "convert")]

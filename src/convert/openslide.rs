@@ -147,7 +147,7 @@ impl OpenSlide {
         };
         let vendor = match detect_vendor(raw_path) {
             Ok(vendor) => vendor,
-            Err(_) => "Unknown".to_owned(),
+            Err(_) => bail!("Failed to detect vendor"),
         };
         let osr = match open(raw_path) {
             Ok(osr) => osr,

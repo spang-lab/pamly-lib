@@ -12,3 +12,6 @@ pub use lockfile::LockFile;
 
 mod convert;
 pub use convert::convert;
+
+mod convert_all;
+pub use convert_all::convert_all;
